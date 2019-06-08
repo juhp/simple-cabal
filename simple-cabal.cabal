@@ -2,7 +2,8 @@ cabal-version:       2.0
 name:                simple-cabal
 version:             0.0.0
 synopsis:            Cabal file wrapper library
-description:         See README for more info
+description:         Cabal compatibility layer for reading and
+                     parsing .cabal files
 homepage:            https://github.com/juhp/simple-cabal
 bug-reports:         https://github.com/juhp/simple-cabal/issues
 license:             BSD3
@@ -10,6 +11,7 @@ license-file:        LICENSE
 author:              Jens Petersen
 maintainer:          juhpetersen@gmail.com
 copyright:           2019 Jens Petersen
+category:            Distribution
 build-type:          Simple
 extra-doc-files:     README.md
                    , CHANGELOG.md

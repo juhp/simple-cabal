@@ -3,10 +3,12 @@
 module SimpleCabal
        ( findCabalFile
        , finalPackageDescription
+       , getPackageId
        , PackageDescription (..)
        , PackageIdentifier (..)
        , packageName, packageVersion
        , readGenericPackageDescription
+       , showPkgId
        ) where
 
 -- from cabal-rpm
@@ -25,6 +27,7 @@ import Distribution.PackageDescription
 #else
   FlagName (..),
 #endif
+  GenericPackageDescription(packageDescription),
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
   mkFlagAssignment
 #endif
@@ -92,6 +95,11 @@ findCabalFile = do
     filesWithExtension dir ext =
       filter (\ f -> takeExtension f == ext) <$> listDirectory dir
 
+getPackageId :: IO PackageIdentifier
+getPackageId = do
+  gpd <- findCabalFile >>= readGenericPackageDescription normal
+  return $ package $ packageDescription gpd
+
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 #else
 readGenericPackageDescription = readPackageDescription
@@ -155,4 +163,8 @@ prettyShow :: Version -> String
 prettyShow = Data.Version.showVersion
 #endif
 #endif
+
+showPkgId :: PackageIdentifier -> String
+showPkgId pkgid =
+  packageName pkgid <> "-" <> packageVersion pkgid
 
