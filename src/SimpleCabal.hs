@@ -11,6 +11,11 @@ module SimpleCabal
        , showPkgId
        ) where
 
+#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
+#else
+import Control.Applicative ((<$>))
+#endif
+
 import Distribution.Compiler
 import Distribution.Package  (PackageIdentifier (..),
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
@@ -165,7 +170,7 @@ packageVersion = prettyShow . pkgVersion
 prettyShow :: Distribution.Version.Version -> String
 prettyShow = Distribution.Version.showVersion
 #else
-prettyShow :: Version -> String
+prettyShow :: Data.Version.Version -> String
 prettyShow = Data.Version.showVersion
 #endif
 #endif
