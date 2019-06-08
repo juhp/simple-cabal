@@ -4,6 +4,7 @@ module SimpleCabal
        ( findCabalFile
        , finalPackageDescription
        , getPackageId
+       , normal
        , PackageDescription (..)
        , PackageIdentifier (..)
        , packageName, packageVersion
