@@ -1,12 +1,6 @@
 # Changelog
 
-`simple-cabal` uses [PVP Versioning][1].
-The changelog is available [on GitHub][2].
+`simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
-0.0.0
-=====
-
-* Initially created.
-
-[1]: https://pvp.haskell.org
-[2]: https://github.com/juhp/simple-cabal/releases
+## 0.0.0
+* Initially version, mostly taken from cabal-rpm PackageUtils.hs

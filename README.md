@@ -6,4 +6,14 @@
 [![Stackage Nightly](http://stackage.org/package/simple-cabal/badge/nightly)](http://stackage.org/nightly/package/simple-cabal)
 [![Build status](https://secure.travis-ci.org/juhp/simple-cabal.svg)](https://travis-ci.org/juhp/simple-cabal)
 
-See README for more info
+A small compatibility wrapper over Cabal (builds for ghc 7 and 8).
+
+```
+pkgid <- getPackageId
+putStrLn $ showPkgId pkgid
+```
+
+```
+cabalfile <- findCabalFile
+genPkgDesc <- readGenericPackageDescription normal cabalfile
+```
