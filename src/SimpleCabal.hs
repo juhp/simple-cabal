@@ -11,7 +11,6 @@ module SimpleCabal
        , showPkgId
        ) where
 
--- from cabal-rpm
 import Distribution.Compiler
 import Distribution.Package  (PackageIdentifier (..),
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
@@ -75,10 +74,17 @@ import Distribution.Pretty (prettyShow)
 import qualified Distribution.Version (showVersion, Version)
 #endif
 #else
-import qualified Data.Version (showVersion)
+import qualified Data.Version (
+    showVersion,
+#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
+    Version,
+#else
+    Version(..)
+#endif
+  )
 #endif
 
-import System.Directory (listDirectory)
+import System.Directory (getDirectoryContents)
 import System.FilePath (takeExtension)
 
 type Flags = [(FlagName, Bool)]
@@ -93,7 +99,7 @@ findCabalFile = do
   where
     filesWithExtension :: FilePath -> String -> IO [FilePath]
     filesWithExtension dir ext =
-      filter (\ f -> takeExtension f == ext) <$> listDirectory dir
+      filter (\ f -> takeExtension f == ext) <$> getDirectoryContents dir
 
 getPackageId :: IO PackageIdentifier
 getPackageId = do
@@ -166,5 +172,5 @@ prettyShow = Data.Version.showVersion
 
 showPkgId :: PackageIdentifier -> String
 showPkgId pkgid =
-  packageName pkgid <> "-" <> packageVersion pkgid
+  packageName pkgid ++ "-" ++ packageVersion pkgid
 
