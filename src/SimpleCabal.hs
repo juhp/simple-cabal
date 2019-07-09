@@ -71,7 +71,12 @@ import Distribution.Simple.Program   (defaultProgramDb)
 import Distribution.Simple.Program   (defaultProgramConfiguration)
 #endif
 import Distribution.System (Platform (..), buildArch, buildOS)
-import Distribution.Verbosity (normal)
+import Distribution.Verbosity (normal,
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#else
+                               Verbosity
+#endif
+                              )
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
@@ -114,6 +119,8 @@ getPackageId = do
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 #else
+readGenericPackageDescription :: Distribution.Verbosity.Verbosity
+                              -> FilePath -> IO GenericPackageDescription
 readGenericPackageDescription = readPackageDescription
 #endif
 
