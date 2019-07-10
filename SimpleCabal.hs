@@ -9,6 +9,7 @@ module SimpleCabal
        , PackageDescription (..)
        , PackageIdentifier (..)
        , packageName, packageVersion
+       , prettyShow
        , readGenericPackageDescription
        , showPkgId
        ) where
