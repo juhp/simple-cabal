@@ -1,18 +1,29 @@
 {-# LANGUAGE CPP #-}
 
-module SimpleCabal
-       ( findCabalFile
-       , finalPackageDescription
-       , FlagName, mkFlagName
-       , getPackageId
-       , normal
-       , PackageDescription (..)
-       , PackageIdentifier (..)
-       , packageName, packageVersion
-       , prettyShow
-       , readGenericPackageDescription
-       , showPkgId
-       ) where
+module SimpleCabal (
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
+  buildDepends,
+#endif
+  exeDepName, pkgcfgDepName,
+  findCabalFile,
+  finalPackageDescription,
+  FlagName, mkFlagName,
+  getPackageId,
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
+#else
+  licenseFiles,
+#endif
+  normal,
+  PackageDescription (..),
+  PackageIdentifier (..),
+  PackageName, depPkgName, mkPackageName, unPackageName,
+  packageName, packageVersion,
+  prettyShow,
+  readGenericPackageDescription,
+  setupDependencies,
+  showPkgId,
+  tryFindPackageDesc
+  ) where
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
 #else
@@ -20,15 +31,36 @@ import Control.Applicative ((<$>))
 #endif
 
 import Distribution.Compiler
-import Distribution.Package  (PackageIdentifier (..),
+import Distribution.Package  (
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
-                                        unPackageName
-#else
-                                        PackageName (..)
+                              unPackageName,
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+                              depPkgName,
+                              mkPackageName,
+                              unPkgconfigName,
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
+                              Dependency,
 #endif
+#else
+#endif
+#endif
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#else
+                              Dependency (..),
+#endif
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+                              PackageName,
+#else
+                              PackageName (..),
+#endif
+                              PackageIdentifier (..),
                                        )
-import Distribution.PackageDescription 
-  (PackageDescription (..),
+
+import Distribution.PackageDescription (
+  PackageDescription (..),
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
+  enabledBuildDepends,
+#endif
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
   FlagName, 
   mkFlagName,
@@ -37,12 +69,17 @@ import Distribution.PackageDescription
 #endif
   GenericPackageDescription(packageDescription),
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
-  mkFlagAssignment
+  mkFlagAssignment,
+#endif
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,24,0)
+  setupDepends
 #endif
   )
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 import Distribution.PackageDescription.Configuration (finalizePD)
 import Distribution.Types.ComponentRequestedSpec (defaultComponentRequestedSpec)
+import Distribution.Types.LegacyExeDependency (LegacyExeDependency (..))
+import Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
 #else
 import Distribution.PackageDescription.Configuration (finalizePackageDescription)
 #endif
@@ -73,7 +110,16 @@ import Distribution.Simple.Program   (defaultProgramDb)
 #else
 import Distribution.Simple.Program   (defaultProgramConfiguration)
 #endif
+import Distribution.Simple.Utils (
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
+    tryFindPackageDesc
+#else
+    findPackageDesc
+#endif
+    )
+
 import Distribution.System (Platform (..), buildArch, buildOS)
+
 import Distribution.Verbosity (normal,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 #else
@@ -194,4 +240,54 @@ showPkgId pkgid =
 #else
 mkFlagName :: String -> FlagName
 mkFlagName = FlagName
+#endif
+
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
+#else
+tryFindPackageDesc :: FilePath -> IO FilePath
+tryFindPackageDesc = findPackageDesc
+#endif
+
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
+#else
+licenseFiles :: PackageDescription -> [FilePath]
+licenseFiles pkgDesc =
+  [licenseFile pkgDesc | licenseFile pkgDesc /= ""]
+#endif
+
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
+buildDepends :: PackageDescription -> [Dependency]
+buildDepends = flip enabledBuildDepends defaultComponentRequestedSpec
+#endif
+
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+exeDepName :: LegacyExeDependency -> String
+exeDepName (LegacyExeDependency n _) = n
+
+pkgcfgDepName :: PkgconfigDependency -> String
+pkgcfgDepName (PkgconfigDependency n _) = unPkgconfigName n
+#else
+depPkgName :: Dependency -> PackageName
+depPkgName (Dependency pn _) = pn
+
+exeDepName :: Dependency -> String
+exeDepName = unPackageName . depPkgName
+
+pkgcfgDepName :: Dependency -> String
+pkgcfgDepName = unPackageName. depPkgName
+#endif
+
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#else
+mkPackageName :: String -> PackageName
+mkPackageName = PackageName
+#endif
+
+setupDependencies :: PackageDescription  -- ^pkg description
+                  -> [PackageName]         -- ^depends
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,24,0)
+setupDependencies pkgDesc =
+  maybe [] (map depPkgName . setupDepends) (setupBuildInfo pkgDesc)
+#else
+setupDependencies _pkgDesc = []
 #endif
