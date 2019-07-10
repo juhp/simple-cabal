@@ -1,11 +1,4 @@
-sudo: true
 language: haskell
-
-cabal: "2.4"
-
-cache:
-  directories:
-  - "$HOME/.cabal/store"
 
 ghc:
 - 8.6.5
@@ -19,7 +12,6 @@ ghc:
 - 7.0.4
 
 install:
-  - cabal update
   - cabal build
 
 script:
