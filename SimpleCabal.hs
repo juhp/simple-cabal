@@ -3,6 +3,7 @@
 module SimpleCabal
        ( findCabalFile
        , finalPackageDescription
+       , FlagName, mkFlagName
        , getPackageId
        , normal
        , PackageDescription (..)
@@ -29,6 +30,7 @@ import Distribution.PackageDescription
   (PackageDescription (..),
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
   FlagName, 
+  mkFlagName,
 #else
   FlagName (..),
 #endif
@@ -187,3 +189,8 @@ showPkgId :: PackageIdentifier -> String
 showPkgId pkgid =
   packageName pkgid ++ "-" ++ packageVersion pkgid
 
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#else
+mkFlagName :: String -> FlagName
+mkFlagName = FlagName
+#endif
