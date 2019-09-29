@@ -1,27 +1,31 @@
 {-# LANGUAGE CPP #-}
 
 module SimpleCabal (
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
-  buildDepends,
-#endif
-  exeDepName, pkgcfgDepName,
   findCabalFile,
   finalPackageDescription,
-  FlagName, mkFlagName,
   getPackageId,
+--  dependencies,
+  buildDepends,
+  buildDependencies,
+  testsuiteDependencies,
+
+  allBuildInfo,
+  BuildInfo (..),
+  depPkgName, exeDepName, exeDepPkgName, pkgcfgDepName,
+  FlagName, mkFlagName,
+  getAllToolDependencies,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
 #else
   licenseFiles,
 #endif
-  normal,
   PackageDescription (..),
   PackageIdentifier (..),
-  PackageName, depPkgName, mkPackageName, unPackageName,
+  PackageName, mkPackageName,
   packageName, packageVersion,
   prettyShow,
   readGenericPackageDescription,
+  setupDepends,
   setupDependencies,
-  showPkgId,
   tryFindPackageDesc
   ) where
 
@@ -30,10 +34,12 @@ module SimpleCabal (
 import Control.Applicative ((<$>))
 #endif
 
+import Data.List (delete, nub)
+
 import Distribution.Compiler
 import Distribution.Package  (
+                              packageName,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
-                              unPackageName,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
                               depPkgName,
                               mkPackageName,
@@ -58,9 +64,13 @@ import Distribution.Package  (
 
 import Distribution.PackageDescription (
   PackageDescription (..),
+  allBuildInfo,
+  BuildInfo (..),
+  buildToolDepends,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
   enabledBuildDepends,
 #endif
+  extraLibs,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
   FlagName, 
   mkFlagName,
@@ -71,13 +81,17 @@ import Distribution.PackageDescription (
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
   mkFlagAssignment,
 #endif
+  pkgconfigDepends,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,24,0)
-  setupDepends
+  setupDepends,
 #endif
+  targetBuildDepends,
+  TestSuite (..)
   )
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 import Distribution.PackageDescription.Configuration (finalizePD)
 import Distribution.Types.ComponentRequestedSpec (defaultComponentRequestedSpec)
+import Distribution.Types.ExeDependency
 import Distribution.Types.LegacyExeDependency (LegacyExeDependency (..))
 import Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
 #else
@@ -90,6 +104,8 @@ import Distribution.PackageDescription.Parse (readGenericPackageDescription)
 #else
 import Distribution.PackageDescription.Parse (readPackageDescription)
 #endif
+
+--import Distribution.Pretty
 
 import Distribution.Simple.Compiler (
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
@@ -105,6 +121,7 @@ import Distribution.Simple.Configure (
     configCompiler
 #endif
     )
+import Distribution.Simple.BuildToolDepends (getAllToolDependencies)
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 import Distribution.Simple.Program   (defaultProgramDb)
 #else
@@ -147,8 +164,9 @@ import qualified Data.Version (
 import System.Directory (getDirectoryContents)
 import System.FilePath (takeExtension)
 
-type Flags = [(FlagName, Bool)]
-
+-- | Find the .cabal file in the current directory.
+--
+-- Errors if more than one or no file found.
 findCabalFile :: IO FilePath
 findCabalFile = do
   allCabals <- filesWithExtension "." ".cabal"
@@ -159,8 +177,10 @@ findCabalFile = do
   where
     filesWithExtension :: FilePath -> String -> IO [FilePath]
     filesWithExtension dir ext =
-      filter (\ f -> takeExtension f == ext) <$> getDirectoryContents dir
+      filter (\ f -> takeExtension f == ext && head f /= '.')
+      <$> getDirectoryContents dir
 
+-- | Get the package name-version from .cabal file in the current directory.
 getPackageId :: IO PackageIdentifier
 getPackageId = do
   gpd <- findCabalFile >>= readGenericPackageDescription normal
@@ -173,7 +193,8 @@ readGenericPackageDescription :: Distribution.Verbosity.Verbosity
 readGenericPackageDescription = readPackageDescription
 #endif
 
-finalPackageDescription :: Flags -> FilePath
+-- | Generate PackageDescription from the specified .cabal file and flags.
+finalPackageDescription :: [(FlagName, Bool)] -> FilePath
                           -> IO PackageDescription
 finalPackageDescription flags cabalfile = do
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
@@ -209,14 +230,18 @@ finalPackageDescription flags cabalfile = do
     Left e -> error $ "finalize failed: " ++ show e
     Right res -> return $ fst res
 
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
-#else
-unPackageName :: PackageName -> String
-unPackageName (PackageName n) = n
-#endif
+-- | Return the list of build dependencies of a package, excluding itself
+buildDependencies :: PackageDescription -> [PackageName]
+buildDependencies pkgDesc =
+  let deps = nub $ map depPkgName (buildDepends pkgDesc)
+      self = pkgName $ package pkgDesc
+  in delete self deps
 
-packageName :: PackageIdentifier -> String
-packageName = unPackageName . pkgName
+-- | Return the list of testsuite dependencies of a package, excluding itself
+testsuiteDependencies :: PackageDescription -> [PackageName]
+testsuiteDependencies pkgDesc =
+  let self = pkgName $ package pkgDesc in
+  delete self . nub . map depPkgName $ concatMap (targetBuildDepends . testBuildInfo) (testSuites pkgDesc)
 
 packageVersion :: PackageIdentifier -> String
 packageVersion = prettyShow . pkgVersion
@@ -231,10 +256,6 @@ prettyShow :: Data.Version.Version -> String
 prettyShow = Data.Version.showVersion
 #endif
 #endif
-
-showPkgId :: PackageIdentifier -> String
-showPkgId pkgid =
-  packageName pkgid ++ "-" ++ packageVersion pkgid
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 #else
@@ -260,6 +281,9 @@ buildDepends :: PackageDescription -> [Dependency]
 buildDepends = flip enabledBuildDepends defaultComponentRequestedSpec
 #endif
 
+exeDepPkgName :: ExeDependency -> PackageName
+exeDepPkgName (ExeDependency n _ _) = n
+
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 exeDepName :: LegacyExeDependency -> String
 exeDepName (LegacyExeDependency n _) = n
@@ -271,10 +295,10 @@ depPkgName :: Dependency -> PackageName
 depPkgName (Dependency pn _) = pn
 
 exeDepName :: Dependency -> String
-exeDepName = unPackageName . depPkgName
+exeDepName = prettyShow . depPkgName
 
 pkgcfgDepName :: Dependency -> String
-pkgcfgDepName = unPackageName. depPkgName
+pkgcfgDepName = prettyShow . depPkgName
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
@@ -291,3 +315,16 @@ setupDependencies pkgDesc =
 #else
 setupDependencies _pkgDesc = []
 #endif
+
+-- dependencies :: PackageDescription  -- ^pkg description
+--                 -> ([PackageName], [PackageName], [ExeDependency], [String], [PkgconfigDependency])
+--                 -- ^depends, setup, tools, c-libs, pkgcfg
+-- dependencies pkgDesc =
+--     let --self = pkgName $ package pkgDesc
+--         deps = buildDependencies pkgDesc
+--         setup = setupDependencies pkgDesc
+--         buildinfo = allBuildInfo pkgDesc
+--         tools =  nub $ concatMap buildToolDepends buildinfo
+--         clibs = nub $ concatMap extraLibs buildinfo
+--         pkgcfgs = nub $ concatMap pkgconfigDepends buildinfo
+--     in (deps, setup, tools, clibs, pkgcfgs)
