@@ -65,7 +65,7 @@ import Distribution.PackageDescription (
   PackageDescription (..),
   allBuildInfo,
   BuildInfo (..),
-  buildToolDepends,
+--  buildToolDepends,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
   enabledBuildDepends,
 #endif
