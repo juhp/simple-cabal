@@ -13,7 +13,6 @@ module SimpleCabal (
   BuildInfo (..),
   depPkgName, exeDepName, exeDepPkgName, pkgcfgDepName,
   FlagName, mkFlagName,
-  getAllToolDependencies,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
 #else
   licenseFiles,
@@ -121,8 +120,8 @@ import Distribution.Simple.Configure (
     configCompiler
 #endif
     )
-import Distribution.Simple.BuildToolDepends (getAllToolDependencies)
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+--import Distribution.Simple.BuildToolDepends (getAllToolDependencies)
 import Distribution.Simple.Program   (defaultProgramDb)
 #else
 import Distribution.Simple.Program   (defaultProgramConfiguration)
