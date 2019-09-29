@@ -11,7 +11,7 @@ module SimpleCabal (
 
   allBuildInfo,
   BuildInfo (..),
-  depPkgName, exeDepName, exeDepPkgName, pkgcfgDepName,
+  depPkgName, exeDepName, pkgcfgDepName,
   FlagName, mkFlagName,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
 #else
@@ -90,7 +90,6 @@ import Distribution.PackageDescription (
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 import Distribution.PackageDescription.Configuration (finalizePD)
 import Distribution.Types.ComponentRequestedSpec (defaultComponentRequestedSpec)
-import Distribution.Types.ExeDependency
 import Distribution.Types.LegacyExeDependency (LegacyExeDependency (..))
 import Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
 #else
@@ -279,9 +278,6 @@ licenseFiles pkgDesc =
 buildDepends :: PackageDescription -> [Dependency]
 buildDepends = flip enabledBuildDepends defaultComponentRequestedSpec
 #endif
-
-exeDepPkgName :: ExeDependency -> PackageName
-exeDepPkgName (ExeDependency n _ _) = n
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 exeDepName :: LegacyExeDependency -> String
