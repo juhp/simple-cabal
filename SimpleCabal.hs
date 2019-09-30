@@ -249,7 +249,7 @@ testsuiteDependencies pkgDesc =
 
 packageVersion :: PackageIdentifier -> String
 packageVersion =
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
   prettyShow . pkgVersion
 #else
   showVersion . pkgVersion
@@ -257,13 +257,13 @@ packageVersion =
 
 showPkgId :: PackageIdentifier -> String
 showPkgId pkgid =
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
   prettyShow pkgid
 #else
   packageName pkgid <> "-" <> packageVersion pkgid
 #endif
 
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
 showVersion :: Distribution.Version.Version -> String
 showVersion = prettyShow
 #endif
