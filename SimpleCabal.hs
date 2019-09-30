@@ -255,6 +255,12 @@ showPkgId pkgid =
   unPackageName (packageName pkgid) ++ "-" ++ packageVersion pkgid
 #endif
 
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
+#else
+unPackageName :: PackageName -> String
+unPackageName = id
+#endif
+
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
 showVersion :: Distribution.Version.Version -> String
 showVersion = prettyShow
