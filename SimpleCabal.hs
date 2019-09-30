@@ -24,7 +24,6 @@ module SimpleCabal (
   PackageName, mkPackageName, unPackageName,
   packageName, packageVersion,
   readGenericPackageDescription,
-  setupDepends,
   setupDependencies,
   showPkgId,
   showVersion,
