@@ -188,7 +188,7 @@ getPackageId = do
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 #else
-readGenericPackageDescription :: Distribution.Verbosity.Verbosity
+readGenericPackageDescription :: Verbosity
                               -> FilePath -> IO GenericPackageDescription
 readGenericPackageDescription = readPackageDescription
 #endif
