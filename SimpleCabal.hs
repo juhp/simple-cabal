@@ -9,6 +9,7 @@ module SimpleCabal (
   buildDepends,
 #endif
   buildDependencies,
+  setupDependencies,
   testsuiteDependencies,
 
   allBuildInfo,
@@ -24,7 +25,6 @@ module SimpleCabal (
   PackageName, mkPackageName, unPackageName,
   packageName, packageVersion,
   readGenericPackageDescription,
-  setupDependencies,
   showPkgId,
   showVersion,
   tryFindPackageDesc
