@@ -98,7 +98,6 @@ import Distribution.Types.LegacyExeDependency (LegacyExeDependency (..))
 import Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
 #else
 import Distribution.PackageDescription.Configuration (finalizePackageDescription)
-import Distribution.Version (Version)
 #endif
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
 import Distribution.PackageDescription.Parsec (readGenericPackageDescription)
@@ -107,8 +106,6 @@ import Distribution.PackageDescription.Parse (readGenericPackageDescription)
 #else
 import Distribution.PackageDescription.Parse (readPackageDescription)
 #endif
-
---import Distribution.Pretty
 
 import Distribution.Simple.Compiler (
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
@@ -147,22 +144,18 @@ import Distribution.Verbosity (normal,
 #endif
                               )
 
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
-import qualified Distribution.Version (Version)
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
 import Distribution.Pretty (prettyShow)
 #else
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 import Distribution.Version (showVersion)
-#endif
 #else
-import qualified Data.Version (
-    showVersion,
-#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
-    Version,
-#else
-    Version(..)
+import Data.Version (showVersion)
 #endif
-  )
+#endif
+
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
+import qualified Distribution.Version (Version)
 #endif
 
 import System.Directory (getDirectoryContents)
