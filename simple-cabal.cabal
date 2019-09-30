@@ -2,8 +2,8 @@ cabal-version:       >= 1.10
 name:                simple-cabal
 version:             0.1.0
 synopsis:            Cabal file wrapper library
-description:         Cabal compatibility layer for reading and
-                     parsing .cabal files
+description:         Find and read .cabal files, and
+                     a Cabal dependency compatibility layer.
 homepage:            https://github.com/juhp/simple-cabal
 bug-reports:         https://github.com/juhp/simple-cabal/issues
 license:             BSD3
