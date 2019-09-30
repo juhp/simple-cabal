@@ -5,7 +5,9 @@ module SimpleCabal (
   finalPackageDescription,
   getPackageId,
 --  dependencies,
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
   buildDepends,
+#endif
   buildDependencies,
   testsuiteDependencies,
 
