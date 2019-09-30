@@ -258,7 +258,7 @@ showPkgId pkgid =
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
 #else
 unPackageName :: PackageName -> String
-unPackageName = id
+unPackageName (PackageName n) = n
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
