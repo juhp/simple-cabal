@@ -21,12 +21,13 @@ module SimpleCabal (
 #endif
   PackageDescription (..),
   PackageIdentifier (..),
-  PackageName, mkPackageName,
+  PackageName, mkPackageName, unPackageName,
   packageName, packageVersion,
-  prettyShow,
   readGenericPackageDescription,
   setupDepends,
   setupDependencies,
+  showPkgId,
+  showVersion,
   tryFindPackageDesc
   ) where
 
@@ -44,6 +45,7 @@ import Distribution.Package  (
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
                               depPkgName,
                               mkPackageName,
+                              unPackageName,
                               unPkgconfigName,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
                               Dependency,
@@ -96,6 +98,7 @@ import Distribution.Types.LegacyExeDependency (LegacyExeDependency (..))
 import Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
 #else
 import Distribution.PackageDescription.Configuration (finalizePackageDescription)
+import Distribution.Version (Version)
 #endif
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
 import Distribution.PackageDescription.Parsec (readGenericPackageDescription)
@@ -145,10 +148,11 @@ import Distribution.Verbosity (normal,
                               )
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+import qualified Distribution.Version (Version)
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
 import Distribution.Pretty (prettyShow)
 #else
-import qualified Distribution.Version (showVersion, Version)
+import qualified Distribution.Version (showVersion)
 #endif
 #else
 import qualified Data.Version (
@@ -244,17 +248,24 @@ testsuiteDependencies pkgDesc =
   delete self . nub . map depPkgName $ concatMap (targetBuildDepends . testBuildInfo) (testSuites pkgDesc)
 
 packageVersion :: PackageIdentifier -> String
-packageVersion = prettyShow . pkgVersion
-
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
-#else
+packageVersion =
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
-prettyShow :: Distribution.Version.Version -> String
-prettyShow = Distribution.Version.showVersion
+  prettyShow . pkgVersion
 #else
-prettyShow :: Data.Version.Version -> String
-prettyShow = Data.Version.showVersion
+  showVersion . pkgVersion
 #endif
+
+showPkgId :: PackageIdentifier -> String
+showPkgId pkgid =
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+  prettyShow pkgid
+#else
+  packageName pkgid <> "-" <> packageVersion pkgid
+#endif
+
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+showVersion :: Distribution.Version.Version -> String
+showVersion = prettyShow
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
@@ -292,10 +303,10 @@ depPkgName :: Dependency -> PackageName
 depPkgName (Dependency pn _) = pn
 
 exeDepName :: Dependency -> String
-exeDepName = prettyShow . depPkgName
+exeDepName = unPackageName . depPkgName
 
 pkgcfgDepName :: Dependency -> String
-pkgcfgDepName = prettyShow . depPkgName
+pkgcfgDepName = unPackageName . depPkgName
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
