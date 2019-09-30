@@ -260,7 +260,7 @@ showPkgId pkgid =
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
   prettyShow pkgid
 #else
-  packageName pkgid ++ "-" ++ packageVersion pkgid
+  unPkgconfigName (packageName pkgid) ++ "-" ++ packageVersion pkgid
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
