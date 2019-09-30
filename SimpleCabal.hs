@@ -163,6 +163,8 @@ import System.FilePath (takeExtension)
 -- | Find the .cabal file in the current directory.
 --
 -- Errors if more than one or no file found.
+--
+-- since @0.0.0.1@
 findCabalFile :: IO FilePath
 findCabalFile = do
   allCabals <- filesWithExtension "." ".cabal"
@@ -176,7 +178,9 @@ findCabalFile = do
       filter (\ f -> takeExtension f == ext && head f /= '.')
       <$> getDirectoryContents dir
 
--- | Get the package name-version from .cabal file in the current directory.
+-- | Get the package name-version from the .cabal file in the current directory.
+--
+-- since @0.0.0.1@
 getPackageId :: IO PackageIdentifier
 getPackageId = do
   gpd <- findCabalFile >>= readGenericPackageDescription normal
@@ -190,6 +194,8 @@ readGenericPackageDescription = readPackageDescription
 #endif
 
 -- | Generate PackageDescription from the specified .cabal file and flags.
+--
+-- since @0.0.0.1@
 finalPackageDescription :: [(FlagName, Bool)] -> FilePath
                           -> IO PackageDescription
 finalPackageDescription flags cabalfile = do
