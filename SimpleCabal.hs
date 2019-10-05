@@ -126,7 +126,7 @@ import Distribution.Simple.Program   (defaultProgramDb)
 #else
 import Distribution.Simple.Program   (defaultProgramConfiguration)
 #endif
-import Distribution.Simple.Utils (
+import qualified Distribution.Simple.Utils as DSU (
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
     tryFindPackageDesc
 #else
@@ -278,10 +278,15 @@ mkFlagName :: String -> FlagName
 mkFlagName = FlagName
 #endif
 
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
-#else
 tryFindPackageDesc :: FilePath -> IO FilePath
-tryFindPackageDesc = findPackageDesc
+tryFindPackageDesc =
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
+  DSU.tryFindPackageDesc
+#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(3,0,0)
+    normal
+#endif
+#else
+  DUS.findPackageDesc
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
