@@ -286,7 +286,7 @@ tryFindPackageDesc =
     normal
 #endif
 #else
-  DUS.findPackageDesc
+  DSU.findPackageDesc
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
