@@ -2,6 +2,7 @@
 
 module SimpleCabal (
   findCabalFile,
+  readFinalPackageDescription,
   finalPackageDescription,
 #if MIN_VERSION_Cabal(2,2,0)
   parseFinalPackageDescription,
@@ -228,6 +229,11 @@ finalPackageDescription :: [(FlagName, Bool)] -> FilePath
                           -> IO PackageDescription
 finalPackageDescription = readFinalPackageDescription
 
+-- | get PackageDescription from a cabal file
+--
+-- deprecates finalPackageDescription
+--
+-- @since 0.1.2
 readFinalPackageDescription :: [(FlagName, Bool)] -> FilePath
                             -> IO PackageDescription
 readFinalPackageDescription flags cabalfile =

@@ -3,6 +3,7 @@
 `simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
 ## 0.1.2 (2020-05-23)
+- readFinalPackageDescription deprecates finalPackageDescription
 - add makeFinalPackageDescription
 - add parseFinalPackageDescription for Cabal-2.2+
 - export simpleParse
