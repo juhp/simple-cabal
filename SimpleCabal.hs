@@ -16,6 +16,7 @@ module SimpleCabal (
   BuildInfo (..),
   depPkgName, exeDepName, pkgcfgDepName,
   FlagName, mkFlagName,
+  hasExes, hasLibs,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
 #else
   licenseFiles,
@@ -74,12 +75,13 @@ import Distribution.PackageDescription (
 #endif
   extraLibs,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
-  FlagName, 
+  FlagName,
   mkFlagName,
 #else
   FlagName (..),
 #endif
   GenericPackageDescription(packageDescription),
+  hasExes, hasLibs,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
   mkFlagAssignment,
 #endif
