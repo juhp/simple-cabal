@@ -177,7 +177,7 @@ import System.FilePath (takeExtension)
 --
 -- Errors if more than one or no file found.
 --
--- since @0.0.0.1@
+-- @since 0.0.0.1
 findCabalFile :: IO FilePath
 findCabalFile = do
   allCabals <- filesWithExtension "." ".cabal"
@@ -193,7 +193,7 @@ findCabalFile = do
 
 -- | Get the package name-version from the .cabal file in the current directory.
 --
--- since @0.0.0.1@
+-- @since 0.0.0.1
 getPackageId :: IO PackageIdentifier
 getPackageId = do
   gpd <- findCabalFile >>= readGenericPackageDescription normal
@@ -208,6 +208,8 @@ readGenericPackageDescription = readPackageDescription
 
 #if MIN_VERSION_Cabal(2,2,0)
 -- | only available with Cabal-2.2+
+--
+-- @since 0.1.2
 parseFinalPackageDescription :: [(FlagName, Bool)] -> B.ByteString
                           -> IO (Maybe PackageDescription)
 parseFinalPackageDescription flags cabalfile = do
@@ -219,7 +221,9 @@ parseFinalPackageDescription flags cabalfile = do
 
 -- | Generate PackageDescription from the specified .cabal file and flags.
 --
--- since @0.0.0.1@, deprecated in favour of readFinalPackageDescription
+-- deprecated in favour of readFinalPackageDescription
+--
+-- @since 0.0.0.1
 finalPackageDescription :: [(FlagName, Bool)] -> FilePath
                           -> IO PackageDescription
 finalPackageDescription = readFinalPackageDescription
@@ -230,6 +234,9 @@ readFinalPackageDescription flags cabalfile =
   readGenericPackageDescription normal cabalfile >>=
   makeFinalPackageDescription flags
 
+-- | convert a GenericPackageDescription to a final PackageDescription
+--
+-- @since 0.1.2
 makeFinalPackageDescription :: [(FlagName, Bool)] -> GenericPackageDescription
                             -> IO PackageDescription
 makeFinalPackageDescription flags genPkgDesc = do
@@ -278,6 +285,7 @@ testsuiteDependencies pkgDesc =
   let self = pkgName $ package pkgDesc in
   delete self . nub . map depPkgName $ concatMap (targetBuildDepends . testBuildInfo) (testSuites pkgDesc)
 
+-- | version string from PackageIdentifier
 packageVersion :: PackageIdentifier -> String
 packageVersion =
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
@@ -286,6 +294,7 @@ packageVersion =
   showVersion . pkgVersion
 #endif
 
+-- | convert PackageIdentifier to a displayable string
 showPkgId :: PackageIdentifier -> String
 showPkgId pkgid =
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
@@ -301,6 +310,7 @@ unPackageName (PackageName n) = n
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
+-- | render a Version
 showVersion :: Distribution.Version.Version -> String
 showVersion = prettyShow
 #endif
@@ -311,6 +321,7 @@ mkFlagName :: String -> FlagName
 mkFlagName = FlagName
 #endif
 
+-- | Find cabal file
 tryFindPackageDesc :: FilePath -> IO FilePath
 tryFindPackageDesc =
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
@@ -324,29 +335,36 @@ tryFindPackageDesc =
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
 #else
+-- | singleton list of license file
 licenseFiles :: PackageDescription -> [FilePath]
 licenseFiles pkgDesc =
   [licenseFile pkgDesc | licenseFile pkgDesc /= ""]
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
+-- | List build dependencies
 buildDepends :: PackageDescription -> [Dependency]
 buildDepends = flip enabledBuildDepends defaultComponentRequestedSpec
 #endif
 
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+-- | name of legacy exe dep
 exeDepName :: LegacyExeDependency -> String
 exeDepName (LegacyExeDependency n _) = n
 
+-- | pkgconfig dep name
 pkgcfgDepName :: PkgconfigDependency -> String
 pkgcfgDepName (PkgconfigDependency n _) = unPkgconfigName n
 #else
+-- | PackageName of dependency
 depPkgName :: Dependency -> PackageName
 depPkgName (Dependency pn _) = pn
 
+-- | name of dependency
 exeDepName :: Dependency -> String
 exeDepName = unPackageName . depPkgName
 
+-- | name of dependency
 pkgcfgDepName :: Dependency -> String
 pkgcfgDepName = unPackageName . depPkgName
 #endif
@@ -357,6 +375,7 @@ mkPackageName :: String -> PackageName
 mkPackageName = PackageName
 #endif
 
+-- | List of setup dependencies
 setupDependencies :: PackageDescription  -- ^pkg description
                   -> [PackageName]         -- ^depends
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,24,0)
