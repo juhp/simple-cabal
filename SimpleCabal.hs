@@ -32,6 +32,7 @@ module SimpleCabal (
   readGenericPackageDescription,
   showPkgId,
   showVersion,
+  simpleParse,
   tryFindPackageDesc
   ) where
 
@@ -145,6 +146,8 @@ import qualified Distribution.Simple.Utils as DSU (
     )
 
 import Distribution.System (Platform (..), buildArch, buildOS)
+
+import Distribution.Text (simpleParse)
 
 import Distribution.Verbosity (normal,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
