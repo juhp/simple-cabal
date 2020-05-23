@@ -2,6 +2,12 @@
 
 `simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
+## 0.1.2 (2020-05-23)
+- add makeFinalPackageDescription
+- add parseFinalPackageDescription for Cabal-2.2+
+- export simpleParse
+- export hasExes and hasLibs
+
 ## 0.1.1 (2019-10-05)
 - fix tryFindPackageDesc on Cabal 3
 
