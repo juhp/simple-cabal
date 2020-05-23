@@ -3,6 +3,10 @@
 module SimpleCabal (
   findCabalFile,
   finalPackageDescription,
+#if MIN_VERSION_Cabal(2,2,0)
+  parseFinalPackageDescription,
+#endif
+  makeFinalPackageDescription,
   getPackageId,
 --  dependencies,
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
@@ -36,6 +40,9 @@ module SimpleCabal (
 import Control.Applicative ((<$>))
 #endif
 
+#if MIN_VERSION_Cabal(2,2,0)
+import qualified Data.ByteString.Char8 as B
+#endif
 import Data.List (delete, nub)
 
 import Distribution.Compiler
@@ -101,7 +108,8 @@ import Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
 import Distribution.PackageDescription.Configuration (finalizePackageDescription)
 #endif
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
-import Distribution.PackageDescription.Parsec (readGenericPackageDescription)
+import Distribution.PackageDescription.Parsec
+       (readGenericPackageDescription, parseGenericPackageDescriptionMaybe)
 #elif defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 import Distribution.PackageDescription.Parse (readGenericPackageDescription)
 #else
@@ -195,28 +203,48 @@ readGenericPackageDescription :: Verbosity
 readGenericPackageDescription = readPackageDescription
 #endif
 
+#if MIN_VERSION_Cabal(2,2,0)
+-- | only available with Cabal-2.2+
+parseFinalPackageDescription :: [(FlagName, Bool)] -> B.ByteString
+                          -> IO (Maybe PackageDescription)
+parseFinalPackageDescription flags cabalfile = do
+  let mgenPkgDesc = parseGenericPackageDescriptionMaybe cabalfile
+  case mgenPkgDesc of
+    Nothing -> return Nothing
+    Just genPkgDesc -> Just <$> makeFinalPackageDescription flags genPkgDesc
+#endif
+
 -- | Generate PackageDescription from the specified .cabal file and flags.
 --
--- since @0.0.0.1@
+-- since @0.0.0.1@, deprecated in favour of readFinalPackageDescription
 finalPackageDescription :: [(FlagName, Bool)] -> FilePath
                           -> IO PackageDescription
-finalPackageDescription flags cabalfile = do
+finalPackageDescription = readFinalPackageDescription
+
+readFinalPackageDescription :: [(FlagName, Bool)] -> FilePath
+                            -> IO PackageDescription
+readFinalPackageDescription flags cabalfile =
+  readGenericPackageDescription normal cabalfile >>=
+  makeFinalPackageDescription flags
+
+makeFinalPackageDescription :: [(FlagName, Bool)] -> GenericPackageDescription
+                            -> IO PackageDescription
+makeFinalPackageDescription flags genPkgDesc = do
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
 #else
   let defaultProgramDb = defaultProgramConfiguration
 #endif
-  genPkgDesc <- readGenericPackageDescription normal cabalfile
   compiler <- do
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,18,0)
-                              (compiler, _, _) <- configCompilerEx
+    (compiler, _, _) <- configCompilerEx
 #else
-                              (compiler, _) <- configCompiler
+    (compiler, _) <- configCompiler
 #endif
-                                (Just GHC) Nothing Nothing defaultProgramDb normal
+       (Just GHC) Nothing Nothing defaultProgramDb normal
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
-                              return (compilerInfo compiler)
+    return (compilerInfo compiler)
 #else
-                              return (compilerId compiler)
+    return (compilerId compiler)
 #endif
 #if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,2,0)
 #else
