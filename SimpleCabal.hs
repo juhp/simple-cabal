@@ -17,7 +17,8 @@ module SimpleCabal (
   setupDependencies,
   testsuiteDependencies,
 
-  allBuildInfo,
+  allBuildInfo, -- deprecated by allLibraries et al
+  allLibraries,
   BuildInfo (..),
   depPkgName, exeDepName, pkgcfgDepName,
   FlagName, mkFlagName,
@@ -44,6 +45,9 @@ import Control.Applicative ((<$>))
 
 #if MIN_VERSION_Cabal(2,2,0)
 import qualified Data.ByteString.Char8 as B
+#endif
+#if !MIN_VERSION_Cabal(2,0,0)
+import Data.Maybe (maybeToList)
 #endif
 import Data.List (delete, nub)
 
@@ -77,6 +81,9 @@ import Distribution.Package  (
 import Distribution.PackageDescription (
   PackageDescription (..),
   allBuildInfo,
+#if MIN_VERSION_Cabal(2,0,0)
+  allLibraries,
+#endif
   BuildInfo (..),
 --  buildToolDepends,
 #if MIN_VERSION_Cabal(2,4,0)
@@ -91,6 +98,9 @@ import Distribution.PackageDescription (
 #endif
   GenericPackageDescription(packageDescription),
   hasExes, hasLibs,
+#if !MIN_VERSION_Cabal(2,0,0)
+  Library,
+#endif
 #if MIN_VERSION_Cabal(2,2,0)
   mkFlagAssignment,
 #endif
@@ -395,3 +405,8 @@ setupDependencies _pkgDesc = []
 --         clibs = nub $ concatMap extraLibs buildinfo
 --         pkgcfgs = nub $ concatMap pkgconfigDepends buildinfo
 --     in (deps, setup, tools, clibs, pkgcfgs)
+
+#if !MIN_VERSION_Cabal(2,0,0)
+allLibraries :: PackageDescription -> [Library]
+allLibraries = maybeToList . library
+#endif
