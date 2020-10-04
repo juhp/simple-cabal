@@ -20,6 +20,7 @@ module SimpleCabal (
   allBuildInfo, -- deprecated by allLibraries et al
   allLibraries,
   BuildInfo (..),
+  Library(..),
   depPkgName, exeDepName, pkgcfgDepName,
   FlagName, mkFlagName,
   hasExes, hasLibs,
@@ -98,9 +99,7 @@ import Distribution.PackageDescription (
 #endif
   GenericPackageDescription(packageDescription),
   hasExes, hasLibs,
-#if !MIN_VERSION_Cabal(2,0,0)
-  Library,
-#endif
+  Library(..),
 #if MIN_VERSION_Cabal(2,2,0)
   mkFlagAssignment,
 #endif

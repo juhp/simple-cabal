@@ -3,7 +3,7 @@
 `simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
 ## 0.1.3 (2020-10-04)
-- add allLibraries (from Cabal>= 2.0)
+- add allLibraries (from Cabal>= 2.0) and Library
 - deprecate allBuildInfo
 
 ## 0.1.2 (2020-05-23)
