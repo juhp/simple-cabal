@@ -1,9 +1,7 @@
 stack-all:
-	stack --resolver nightly --stack-yaml stack-ghc810.yaml build
-	@echo
 	stack-nightly build
 	@echo
-	stack-lts build
+	stack --resolver lts-16 build
 	@echo
 	stack --resolver lts-14 build
 	@echo
