@@ -120,7 +120,11 @@ import Distribution.PackageDescription.Configuration (finalizePackageDescription
 #endif
 #if MIN_VERSION_Cabal(2,2,0)
 import Distribution.PackageDescription.Parsec
-       (readGenericPackageDescription, parseGenericPackageDescriptionMaybe)
+       (
+#if !MIN_VERSION_Cabal(3,8,0)
+         readGenericPackageDescription,
+#endif
+         parseGenericPackageDescriptionMaybe)
 #elif MIN_VERSION_Cabal(2,0,0)
 import Distribution.PackageDescription.Parse (readGenericPackageDescription)
 #else
@@ -141,6 +145,9 @@ import Distribution.Simple.Configure (
     configCompiler
 #endif
     )
+#if MIN_VERSION_Cabal(3,8,0)
+import Distribution.Simple.PackageDescription (readGenericPackageDescription)
+#endif
 #if MIN_VERSION_Cabal(2,0,0)
 --import Distribution.Simple.BuildToolDepends (getAllToolDependencies)
 import Distribution.Simple.Program   (defaultProgramDb)
