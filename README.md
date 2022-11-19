@@ -5,7 +5,7 @@
 [![Stackage Lts](http://stackage.org/package/simple-cabal/badge/lts)](http://stackage.org/lts/package/simple-cabal)
 [![Stackage Nightly](http://stackage.org/package/simple-cabal/badge/nightly)](http://stackage.org/nightly/package/simple-cabal)
 
-A small compatibility wrapper over Cabal (builds for ghc 7 and 8).
+A small compatibility wrapper over Cabal.
 
 ```
 pkgid <- getPackageId

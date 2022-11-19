@@ -1,0 +1,3 @@
+[versions]
+# lts-6 pulls in Cabal-1.22
+oldest = lts-8
