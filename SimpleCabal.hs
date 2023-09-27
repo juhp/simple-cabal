@@ -36,6 +36,9 @@ module SimpleCabal (
   showPkgId,
   showVersion,
   simpleParse,
+#if MIN_VERSION_Cabal(2,2,0)
+  simpleParsec,
+#endif
   tryFindPackageDesc
   ) where
 
@@ -129,6 +132,14 @@ import Distribution.PackageDescription.Parsec
 import Distribution.PackageDescription.Parse (readGenericPackageDescription)
 #else
 import Distribution.PackageDescription.Parse (readPackageDescription)
+#endif
+
+#if MIN_VERSION_Cabal(3,0,0)
+import Distribution.Parsec (simpleParsec)
+#else
+#if MIN_VERSION_Cabal(2,2,0)
+import Distribution.Parsec.Class (simpleParsec)
+#endif
 #endif
 
 import Distribution.Simple.Compiler (
