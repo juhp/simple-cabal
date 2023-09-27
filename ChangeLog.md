@@ -2,6 +2,9 @@
 
 `simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
+## 0.1.4 (2023-09-27)
+- add simpleParsec (Cabal >= 2.2)
+
 ## 0.1.3 (2020-10-04)
 - add allLibraries (from Cabal>= 2.0) and Library
 - deprecate allBuildInfo
