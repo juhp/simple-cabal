@@ -10,7 +10,7 @@ module SimpleCabal (
   makeFinalPackageDescription,
   getPackageId,
 --  dependencies,
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
+#if MIN_VERSION_Cabal(2,4,0)
   buildDepends,
 #endif
   buildDependencies,
@@ -24,7 +24,7 @@ module SimpleCabal (
   depPkgName, exeDepName, pkgcfgDepName,
   FlagName, mkFlagName,
   hasExes, hasLibs,
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,20,0)
+#if MIN_VERSION_Cabal(1,20,0)
 #else
   licenseFiles,
 #endif
@@ -39,7 +39,7 @@ module SimpleCabal (
   tryFindPackageDesc
   ) where
 
-#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
+#if MIN_VERSION_base(4,8,0)
 #else
 import Control.Applicative ((<$>))
 #endif
@@ -55,23 +55,23 @@ import Data.List (delete, nub)
 import Distribution.Compiler
 import Distribution.Package  (
                               packageName,
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(1,22,0)
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#if MIN_VERSION_Cabal(1,22,0)
+#if MIN_VERSION_Cabal(2,0,0)
                               depPkgName,
                               mkPackageName,
                               unPackageName,
                               unPkgconfigName,
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,4,0)
+#if MIN_VERSION_Cabal(2,4,0)
                               Dependency,
 #endif
 #else
 #endif
 #endif
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#if MIN_VERSION_Cabal(2,0,0)
 #else
                               Dependency (..),
 #endif
-#if defined(MIN_VERSION_Cabal) && MIN_VERSION_Cabal(2,0,0)
+#if MIN_VERSION_Cabal(2,0,0)
                               PackageName,
 #else
                               PackageName (..),
