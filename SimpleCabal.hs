@@ -28,8 +28,7 @@ module SimpleCabal (
   unUnqualComponentName,
   FlagName, mkFlagName,
   hasExes, hasLibs,
-#if MIN_VERSION_Cabal(1,20,0)
-#else
+#if !MIN_VERSION_Cabal(1,20,0)
   licenseFiles,
 #endif
   PackageDescription (..),
