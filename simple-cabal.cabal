@@ -30,7 +30,8 @@ library
                        bytestring,
                        Cabal,
                        directory,
-                       filepath
+                       filepath,
+                       safe
 
   default-language:    Haskell2010
 

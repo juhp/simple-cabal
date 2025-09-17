@@ -199,6 +199,7 @@ import Data.Version (showVersion)
 import qualified Distribution.Version (Version)
 #endif
 
+import Safe (headMay)
 import System.Directory (getDirectoryContents)
 import System.FilePath (takeExtension)
 
@@ -217,7 +218,7 @@ findCabalFile = do
   where
     filesWithExtension :: FilePath -> String -> IO [FilePath]
     filesWithExtension dir ext =
-      filter (\ f -> takeExtension f == ext && head f /= '.')
+      filter (\ f -> takeExtension f == ext && headMay f /= Just '.')
       <$> getDirectoryContents dir
 
 -- | Get the package name-version from the .cabal file in the current directory.
