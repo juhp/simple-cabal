@@ -22,6 +22,10 @@ module SimpleCabal (
   BuildInfo (..),
   Library(..),
   depPkgName, exeDepName, pkgcfgDepName,
+#if MIN_VERSION_Cabal(2,0,0)
+  UnqualComponentName, mkUnqualComponentName,
+#endif
+  unUnqualComponentName,
   FlagName, mkFlagName,
   hasExes, hasLibs,
 #if MIN_VERSION_Cabal(1,20,0)
@@ -118,6 +122,10 @@ import Distribution.PackageDescription.Configuration (finalizePD)
 import Distribution.Types.ComponentRequestedSpec (defaultComponentRequestedSpec)
 import Distribution.Types.LegacyExeDependency (LegacyExeDependency (..))
 import Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
+import Distribution.Types.UnqualComponentName (UnqualComponentName(),
+                                               mkUnqualComponentName,
+                                               unUnqualComponentName
+                                              )
 #else
 import Distribution.PackageDescription.Configuration (finalizePackageDescription)
 #endif
@@ -393,6 +401,10 @@ exeDepName = unPackageName . depPkgName
 -- | name of dependency
 pkgcfgDepName :: Dependency -> String
 pkgcfgDepName = unPackageName . depPkgName
+
+-- | name of unqualified component
+unUnqualComponentName :: String -> String
+unUnqualComponentName = id
 #endif
 
 #if !MIN_VERSION_Cabal(2,0,0)
