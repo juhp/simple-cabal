@@ -1,6 +1,6 @@
 cabal-version:       >= 1.10
 name:                simple-cabal
-version:             0.1.4
+version:             0.2.0
 synopsis:            Cabal compatibility wrapper library
 description:         Find and read .cabal files, and
                      a Cabal dependency compatibility layer.

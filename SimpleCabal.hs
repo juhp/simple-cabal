@@ -43,7 +43,7 @@ module SimpleCabal (
 #if MIN_VERSION_Cabal(2,2,0)
   simpleParsec,
 #endif
-  tryFindPackageDesc
+  tryFindPackageDesc'
   ) where
 
 #if MIN_VERSION_base(4,8,0)
@@ -172,6 +172,9 @@ import Distribution.Simple.PackageDescription (readGenericPackageDescription)
 import Distribution.Simple.Program   (defaultProgramDb)
 #else
 import Distribution.Simple.Program   (defaultProgramConfiguration)
+#endif
+#if MIN_VERSION_Cabal(3,14,0)
+import Distribution.Utils.Path (interpretSymbolicPath, makeSymbolicPath)
 #endif
 import qualified Distribution.Simple.Utils as DSU (
 #if MIN_VERSION_Cabal(1,20,0)
@@ -356,16 +359,19 @@ mkFlagName :: String -> FlagName
 mkFlagName = FlagName
 #endif
 
--- | Find cabal file
-tryFindPackageDesc :: FilePath -> IO FilePath
-tryFindPackageDesc =
-#if MIN_VERSION_Cabal(1,20,0)
-  DSU.tryFindPackageDesc
-#if MIN_VERSION_Cabal(3,0,0)
-    normal
-#endif
+-- | Find cabal file in current directory
+--
+-- since 0.2.0
+tryFindPackageDesc' :: IO FilePath
+tryFindPackageDesc' =
+#if MIN_VERSION_Cabal(3,14,0)
+  interpretSymbolicPath Nothing <$> DSU.tryFindPackageDesc normal Nothing
+#elif MIN_VERSION_Cabal(3,0,0)
+  DSU.tryFindPackageDesc normal "."
+#elif MIN_VERSION_Cabal(1,20,0)
+  DSU.tryFindPackageDesc "."
 #else
-  DSU.findPackageDesc
+  DSU.findPackageDesc "."
 #endif
 
 #if !MIN_VERSION_Cabal(1,20,0)
