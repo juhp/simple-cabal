@@ -36,7 +36,7 @@ module SimpleCabal (
   PackageIdentifier (..),
   PackageName, mkPackageName, unPackageName,
   packageName, packageVersion,
-  readGenericPackageDescription,
+  readGenericPackageDescription',
   showPkgId,
   showVersion,
   simpleParse,
@@ -130,16 +130,11 @@ import Distribution.Types.UnqualComponentName (UnqualComponentName(),
 import Distribution.PackageDescription.Configuration (finalizePackageDescription)
 #endif
 #if MIN_VERSION_Cabal(2,2,0)
-import Distribution.PackageDescription.Parsec
-       (
-#if !MIN_VERSION_Cabal(3,8,0)
-         readGenericPackageDescription,
-#endif
-         parseGenericPackageDescriptionMaybe)
+import qualified Distribution.PackageDescription.Parsec as DPP
 #elif MIN_VERSION_Cabal(2,0,0)
-import Distribution.PackageDescription.Parse (readGenericPackageDescription)
+import qualified Distribution.PackageDescription.Parse as DPP
 #else
-import Distribution.PackageDescription.Parse (readPackageDescription)
+import qualified Distribution.PackageDescription.Parse as DPP
 #endif
 
 #if MIN_VERSION_Cabal(3,0,0)
@@ -165,7 +160,7 @@ import Distribution.Simple.Configure (
 #endif
     )
 #if MIN_VERSION_Cabal(3,8,0)
-import Distribution.Simple.PackageDescription (readGenericPackageDescription)
+import qualified Distribution.Simple.PackageDescription as DSP
 #endif
 #if MIN_VERSION_Cabal(2,0,0)
 --import Distribution.Simple.BuildToolDepends (getAllToolDependencies)
@@ -183,15 +178,11 @@ import qualified Distribution.Simple.Utils as DSU (
     findPackageDesc
 #endif
     )
-
 import Distribution.System (Platform (..), buildArch, buildOS)
 
 import Distribution.Text (simpleParse)
 
-import Distribution.Verbosity (normal,
-#if !MIN_VERSION_Cabal(2,0,0)
-                               Verbosity
-#endif
+import Distribution.Verbosity (normal, Verbosity
                               )
 
 #if MIN_VERSION_Cabal(2,2,0)
@@ -234,14 +225,8 @@ findCabalFile = do
 -- @since 0.0.0.1
 getPackageId :: IO PackageIdentifier
 getPackageId = do
-  gpd <- findCabalFile >>= readGenericPackageDescription normal
+  gpd <- findCabalFile >>= readGenericPackageDescription' normal
   return $ package $ packageDescription gpd
-
-#if !MIN_VERSION_Cabal(2,0,0)
-readGenericPackageDescription :: Verbosity
-                              -> FilePath -> IO GenericPackageDescription
-readGenericPackageDescription = readPackageDescription
-#endif
 
 #if MIN_VERSION_Cabal(2,2,0)
 -- | only available with Cabal-2.2+
@@ -250,7 +235,7 @@ readGenericPackageDescription = readPackageDescription
 parseFinalPackageDescription :: [(FlagName, Bool)] -> B.ByteString
                           -> IO (Maybe PackageDescription)
 parseFinalPackageDescription flags cabalfile = do
-  let mgenPkgDesc = parseGenericPackageDescriptionMaybe cabalfile
+  let mgenPkgDesc = DPP.parseGenericPackageDescriptionMaybe cabalfile
   case mgenPkgDesc of
     Nothing -> return Nothing
     Just genPkgDesc -> Just <$> makeFinalPackageDescription flags genPkgDesc
@@ -265,6 +250,27 @@ finalPackageDescription :: [(FlagName, Bool)] -> FilePath
                           -> IO PackageDescription
 finalPackageDescription = readFinalPackageDescription
 
+-- | Legacy version of readGenericPackageDescription
+-- which doesn't use SymbolicPath (or workdir)
+--
+-- since 0.2.0
+readGenericPackageDescription' :: Verbosity -> FilePath -> IO GenericPackageDescription
+readGenericPackageDescription' verb file =
+#if MIN_VERSION_Cabal(3,8,0)
+  DSP.readGenericPackageDescription verb
+#elif MIN_VERSION_Cabal(2,0,0)
+  DPP.readGenericPackageDescription verb
+#else
+  DPP.readPackageDescription verb
+#endif
+--  DPP.readGenericPackageDescription verb
+#if MIN_VERSION_Cabal(3,14,0)
+    Nothing $
+    makeSymbolicPath
+#endif
+    file
+
+
 -- | get PackageDescription from a cabal file
 --
 -- deprecates finalPackageDescription
@@ -273,7 +279,7 @@ finalPackageDescription = readFinalPackageDescription
 readFinalPackageDescription :: [(FlagName, Bool)] -> FilePath
                             -> IO PackageDescription
 readFinalPackageDescription flags cabalfile =
-  readGenericPackageDescription normal cabalfile >>=
+  readGenericPackageDescription' normal cabalfile >>=
   makeFinalPackageDescription flags
 
 -- | convert a GenericPackageDescription to a final PackageDescription
