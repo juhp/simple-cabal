@@ -16,7 +16,7 @@ putStrLn $ showPkgId pkgid
 
 ```
 cabalfile <- findCabalFile
-genPkgDesc <- readGenericPackageDescription normal cabalfile
+genPkgDesc <- readGenericPackageDescription' normal cabalfile
 ```
 
 ## Contribute

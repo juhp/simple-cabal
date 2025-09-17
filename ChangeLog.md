@@ -2,8 +2,14 @@
 
 `simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
-## 0.1.4 (2023-09-27)
+## 0.2.0 (2025-09-17)
+- support Cabal 3.14:
+- readGenericPackageDescription' replaces readGenericPackageDescription
+  (which changed type for Cabal >= 3.14)
+- tryFindPackageDesc' replaces tryFindPackageDesc to allow for Cabal >= 3.14
 - add simpleParsec (Cabal >= 2.2)
+- export UnqualComponentName, mkUnqualComponentName (Cabal >= 2.0)
+- export unUnqualComponentName
 
 ## 0.1.3 (2020-10-04)
 - add allLibraries (from Cabal>= 2.0) and Library
