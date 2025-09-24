@@ -26,6 +26,7 @@ source-repository head
 
 library
   exposed-modules:     SimpleCabal
+  hs-source-dirs:      src
 
   build-depends:       base < 5,
                        bytestring,
