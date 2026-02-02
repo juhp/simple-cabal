@@ -58,6 +58,10 @@ import Data.Maybe (maybeToList)
 #endif
 import Data.List (delete, nub)
 
+#if MIN_VERSION_Cabal(3,16,0)
+import Distribution.Types.DependencySatisfaction
+#endif
+
 import Distribution.Compiler
 import Distribution.Package  (
                               packageName,
@@ -311,7 +315,12 @@ makeFinalPackageDescription flags genPkgDesc = do
 #endif
   let final =
         finalizePackageDescription (mkFlagAssignment flags)
-        (const True) (Platform buildArch buildOS)
+#if MIN_VERSION_Cabal(3,16,0)
+        (const Satisfied)
+#else
+        (const True)
+#endif
+        (Platform buildArch buildOS)
         compiler
         [] genPkgDesc
   case final of
