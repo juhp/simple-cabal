@@ -42,6 +42,7 @@ module SimpleCabal (
 #if MIN_VERSION_Cabal(2,2,0)
   simpleParsec,
 #endif
+  tryFindPackageDesc,
   tryFindPackageDesc'
   ) where
 
@@ -374,20 +375,27 @@ mkFlagName :: String -> FlagName
 mkFlagName = FlagName
 #endif
 
--- | Find cabal file in current directory
+-- | Find cabal file in directory
 --
--- since 0.2.0
-tryFindPackageDesc' :: IO FilePath
-tryFindPackageDesc' =
+-- reintroduced in 0.2.1
+tryFindPackageDesc :: FilePath -> IO FilePath
+tryFindPackageDesc dir =
 #if MIN_VERSION_Cabal(3,14,0)
-  interpretSymbolicPath Nothing <$> DSU.tryFindPackageDesc normal Nothing
+  do
+    file <- withCurrentDirectory dir $
+      interpretSymbolicPath Nothing <$> DSU.tryFindPackageDesc normal Nothing
+    return $ dir </> file
 #elif MIN_VERSION_Cabal(3,0,0)
-  DSU.tryFindPackageDesc normal "."
+  DSU.tryFindPackageDesc normal dir
 #elif MIN_VERSION_Cabal(1,20,0)
-  DSU.tryFindPackageDesc "."
+  DSU.tryFindPackageDesc dir
 #else
-  DSU.findPackageDesc "."
+  DSU.findPackageDesc dir
 #endif
+
+-- | Find cabal file in current directory
+tryFindPackageDesc' :: IO FilePath
+tryFindPackageDesc' = tryFindPackageDesc "."
 
 #if !MIN_VERSION_Cabal(1,20,0)
 -- | singleton list of license file
