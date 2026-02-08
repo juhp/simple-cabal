@@ -31,4 +31,5 @@ jobs:
       - run: cabal build --enable-tests
       - run: cabal test --enable-tests --test-show-details=direct
       - run: cabal haddock
+        if: ${{ ! startsWith(matrix.ghc, '8.') }}
       - run: cabal sdist
