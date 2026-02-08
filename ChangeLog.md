@@ -2,6 +2,14 @@
 
 `simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
+## 0.2.1 (2026-02-08, @juhp)
+- mark allBuildInfo deprecated
+- add readFinalPackageDescription' (fixes #4)
+- use listToMaybe to drop safe (fixes #5)
+- add findCabalFile' (closes #3)
+- add back tryFindPackageDesc
+- Cabal 3.16 compatibility (#6, @sol)
+
 ## 0.2.0 (2025-09-17)
 - support Cabal 3.14:
 - readGenericPackageDescription' replaces readGenericPackageDescription
