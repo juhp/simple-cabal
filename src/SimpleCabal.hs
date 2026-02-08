@@ -55,9 +55,12 @@ import Control.Applicative ((<$>))
 #if MIN_VERSION_Cabal(2,2,0)
 import qualified Data.ByteString.Char8 as B
 #endif
+import Data.Maybe (
+  listToMaybe,
 #if !MIN_VERSION_Cabal(2,0,0)
-import Data.Maybe (maybeToList)
+  maybeToList
 #endif
+    )
 import Data.List (delete, nub)
 
 #if MIN_VERSION_Cabal(3,16,0)
@@ -204,7 +207,6 @@ import Data.Version (showVersion)
 import qualified Distribution.Version (Version)
 #endif
 
-import Safe (headMay)
 import System.Directory (getDirectoryContents)
 import System.FilePath (normalise, takeExtension, (</>))
 
@@ -231,7 +233,7 @@ findCabalFile' dir = do
   where
     filesWithExtension :: String -> IO [FilePath]
     filesWithExtension ext =
-      filter (\ f -> takeExtension f == ext && headMay f /= Just '.')
+      filter (\ f -> takeExtension f == ext && listToMaybe f /= Just '.')
       <$> getDirectoryContents dir
 
 -- | Get the package name-version from the .cabal file in the current directory.
