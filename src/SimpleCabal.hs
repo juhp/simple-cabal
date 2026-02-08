@@ -4,6 +4,7 @@ module SimpleCabal (
   findCabalFile,
   findCabalFile',
   readFinalPackageDescription,
+  readFinalPackageDescription',
   finalPackageDescription,
 #if MIN_VERSION_Cabal(2,2,0)
   parseFinalPackageDescription,
@@ -300,6 +301,15 @@ readFinalPackageDescription :: [(FlagName, Bool)] -> FilePath
                             -> IO PackageDescription
 readFinalPackageDescription flags cabalfile =
   readGenericPackageDescription' normal cabalfile >>=
+  makeFinalPackageDescription flags
+
+-- | like readFinalPackageDescription but with a verbose parameter
+--
+-- @since 0.2.1
+readFinalPackageDescription' :: [(FlagName, Bool)] -> Verbosity -> FilePath
+                            -> IO PackageDescription
+readFinalPackageDescription' flags verbose cabalfile =
+  readGenericPackageDescription' verbose cabalfile >>=
   makeFinalPackageDescription flags
 
 -- | convert a GenericPackageDescription to a final PackageDescription
