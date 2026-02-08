@@ -2,6 +2,7 @@
 
 module SimpleCabal (
   findCabalFile,
+  findCabalFile',
   readFinalPackageDescription,
   finalPackageDescription,
 #if MIN_VERSION_Cabal(2,2,0)
@@ -205,7 +206,7 @@ import qualified Distribution.Version (Version)
 
 import Safe (headMay)
 import System.Directory (getDirectoryContents)
-import System.FilePath (takeExtension)
+import System.FilePath (normalise, takeExtension, (</>))
 
 -- | Find the .cabal file in the current directory.
 --
@@ -213,15 +214,23 @@ import System.FilePath (takeExtension)
 --
 -- @since 0.0.0.1
 findCabalFile :: IO FilePath
-findCabalFile = do
-  allCabals <- filesWithExtension "." ".cabal"
+findCabalFile = findCabalFile' "."
+
+-- | Find .cabal file in a directory
+--
+-- Errors if more than one or no file found.
+--
+-- @since 0.2.1
+findCabalFile' :: FilePath -> IO FilePath
+findCabalFile' dir = do
+  allCabals <- filesWithExtension ".cabal"
   case allCabals of
-    [file] -> return file
+    [file] -> return $ normalise $ dir </> file
     [] -> error "No .cabal file found"
     _ -> error "More than one .cabal file found!"
   where
-    filesWithExtension :: FilePath -> String -> IO [FilePath]
-    filesWithExtension dir ext =
+    filesWithExtension :: String -> IO [FilePath]
+    filesWithExtension ext =
       filter (\ f -> takeExtension f == ext && headMay f /= Just '.')
       <$> getDirectoryContents dir
 
