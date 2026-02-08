@@ -19,7 +19,7 @@ module SimpleCabal (
   setupDependencies,
   testsuiteDependencies,
 
-  allBuildInfo, -- deprecated by allLibraries et al
+  allBuildInfo, -- ^ deprecated by allLibraries et al
   allLibraries,
   BuildInfo (..),
   Library(..),
