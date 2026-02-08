@@ -207,7 +207,11 @@ import Data.Version (showVersion)
 import qualified Distribution.Version (Version)
 #endif
 
-import System.Directory (getDirectoryContents)
+import System.Directory (getDirectoryContents,
+#if MIN_VERSION_directory(1,3,9)
+                         withCurrentDirectory
+#endif
+                        )
 import System.FilePath (normalise, takeExtension, (</>))
 
 -- | Find the .cabal file in the current directory.
