@@ -2,6 +2,10 @@
 
 `simple-cabal` uses [PVP Versioning](https://pvp.haskell.org)
 
+## 0.2.2 (2026-11-18, @juhp)
+- support Cabal 3.18 (with local normalVerb)
+- allBuildInfo: drop the haddock annotation
+
 ## 0.2.1 (2026-02-08, @juhp)
 - mark allBuildInfo deprecated
 - add readFinalPackageDescription' (fixes #4)
