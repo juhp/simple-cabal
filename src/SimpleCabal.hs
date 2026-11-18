@@ -191,8 +191,11 @@ import Distribution.System (Platform (..), buildArch, buildOS)
 
 import Distribution.Text (simpleParse)
 
-import Distribution.Verbosity (normal, Verbosity
-                              )
+import Distribution.Verbosity (normal, Verbosity,
+#if MIN_VERSION_Cabal(3,18,0)
+                              mkVerbosity, defaultVerbosityHandles
+#endif
+                             )
 
 #if MIN_VERSION_Cabal(2,2,0)
 import Distribution.Pretty (prettyShow)
@@ -241,12 +244,20 @@ findCabalFile' dir = do
       filter (\ f -> takeExtension f == ext && listToMaybe f /= Just '.')
       <$> getDirectoryContents dir
 
+normalVerb :: Verbosity
+normalVerb =
+#if MIN_VERSION_Cabal(3,18,0)
+         mkVerbosity defaultVerbosityHandles normal
+#else
+         normal
+#endif
+
 -- | Get the package name-version from the .cabal file in the current directory.
 --
 -- @since 0.0.0.1
 getPackageId :: IO PackageIdentifier
 getPackageId = do
-  gpd <- findCabalFile >>= readGenericPackageDescription' normal
+  gpd <- findCabalFile >>= readGenericPackageDescription' normalVerb
   return $ package $ packageDescription gpd
 
 #if MIN_VERSION_Cabal(2,2,0)
@@ -300,7 +311,7 @@ readGenericPackageDescription' verb file =
 readFinalPackageDescription :: [(FlagName, Bool)] -> FilePath
                             -> IO PackageDescription
 readFinalPackageDescription flags cabalfile =
-  readGenericPackageDescription' normal cabalfile >>=
+  readGenericPackageDescription' normalVerb cabalfile >>=
   makeFinalPackageDescription flags
 
 -- | like readFinalPackageDescription but with a verbose parameter
@@ -327,7 +338,7 @@ makeFinalPackageDescription flags genPkgDesc = do
 #else
     (compiler, _) <- configCompiler
 #endif
-       (Just GHC) Nothing Nothing defaultProgramDb normal
+       (Just GHC) Nothing Nothing defaultProgramDb normalVerb
 #if MIN_VERSION_Cabal(1,22,0)
     return (compilerInfo compiler)
 #else
@@ -408,7 +419,7 @@ tryFindPackageDesc dir =
 #if MIN_VERSION_Cabal(3,14,0)
   do
     file <- withCurrentDirectory dir $
-      interpretSymbolicPath Nothing <$> DSU.tryFindPackageDesc normal Nothing
+      interpretSymbolicPath Nothing <$> DSU.tryFindPackageDesc normalVerb Nothing
     return $ dir </> file
 #elif MIN_VERSION_Cabal(3,0,0)
   DSU.tryFindPackageDesc normal dir
